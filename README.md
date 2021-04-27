@@ -8,4 +8,3 @@ A facial recognition system will be responsible to complete the authentication p
 A neural network will be deployed that will help against face presentation attacks.
 Said presentation attack detection system will only be trained for print and static display based FPAs.
 
-NOTE :- The dataset for this project is created by me with the help of private subjects, and will not be shared here for the sake of privacy.
