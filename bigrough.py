@@ -1,26 +1,17 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Wed Apr 14 18:22:11 2021
-
-@author: harsh
-"""
 
 # ------------------------ INTEGRATED CAM MODULES ----------------------------
 
-import datetime
-import os
+import datetime, math, os, cv2, glob, dlib, pyttsx3, face_recognition
 from PIL import Image
 import numpy as np
 from keras.models import model_from_json
 from scipy.ndimage import imread
 from scipy.misc import imresize, imsave
-import cv2
-import face_recognition
 from tqdm import tqdm
 from collections import defaultdict
 from imutils.video import VideoStream
 from tensorflow.keras.models import load_model
-import pyttsx3
+import mysql.connector
 
 IMG_SIZE = 24
 
@@ -33,32 +24,74 @@ l4 = "Spoof detection system initialized..."
 l5 = "Please hold your face still in the camera."
 l6 = "Face verified. Please proceed with the transaction."
 l7 = "Spoof detected. This account will be blocked."
+l8 = "Face detection and recognition system initialized..."
+l9 = "Multiple faces detected. Aborting transaction"
 
 def say(line):
     engine = pyttsx3.init()
     engine.say(line)
     engine.runAndWait()
-
+    
 def init_cam():
     # initalize the cam
     cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
     print("Webcam started")
     QRscan_read(cap)
-    go(cap)
+    #face_det(cap)
+    #go(cap)
+    #closeDB(con)
+    terminate(cap)
+    
+def collect(c_no, cap):
+    conDB(c_no, cap)
+    
+def conDB(c_no, cap):
+    mydb = mysql.connector.connect(host='localhost', user='root', passwd='', db='atm')
+    l = "DB connection established"
+    say(l)
+    getAcc(mydb, c_no, cap) 
 
+def getAcc(con, c_no, cap):
+    
+    curs = con.cursor()
+    sql = f"SELECT first_name FROM custs WHERE card_no = {c_no}"
+    curs.execute(sql)
+    res = curs.fetchone()
+    fname = res[0]
+    print(fname)
+    
+    sql1 = f"SELECT status FROM custs WHERE card_no = {c_no}"
+    curs.execute(sql1)
+    res1 = curs.fetchone()
+    status = res1[0]
+    
+    if status == 'Active':
+        face_det(cap, fname, c_no)
+    else:
+        l = "Account blocked. Please contact your bank"
+        say(l)
+        terminate(cap)
+    closeDB(con)
+    
+def blkAcc(con, c_no):
+    
+    sql = f"UPDATE custs SET status = 'Blocked' WHERE card_no = {c_no}"
+    con.close()
+    
+def closeDB(con):
+    con.close()
+    
 def QRscan_read(cap):
     
-    print("QR code reader initialized")
     say(l0)
     say(l1)
     
     # initialize the cv2 QRCode detector
     detector = cv2.QRCodeDetector()
     
-    from luhn import luhn_algo
     while True:
         _, img = cap.read()
-        #img = cv2.resize(img, None, fx=0.9, fy=0.9)
+        
         # detect and decode
         data, bbox, _ = detector.detectAndDecode(img)
         # check if there is a QRCode in the image
@@ -69,9 +102,9 @@ def QRscan_read(cap):
                 cv2.line(img, tuple(bbox[i][0]), tuple(bbox[(i+1) % len(bbox)][0]), color=(255, 0, 0), thickness=2)
             if data:
                 #print("[+] QR Code detected, data:", data)
-                cno = data[0:15]                          # plus 1 from all
-                card_from_date = data[17:22]              # numbers in lines
-                card_exp_date = data[24:29]               # 31, 32 and 33
+                cno = data[0:15]                          
+                card_from_date = data[17:22]              
+                card_exp_date = data[24:29]               
                 #print(card_from_date)
                 #print(card_exp_date)
                 #print(cno)
@@ -86,20 +119,180 @@ def QRscan_read(cap):
                     break
                 else:
                     #print("Card good")
-                    say(l3)
-                    luhn_algo(cno)
+                    #say(l3)
+                    luhn_algo(cno, cap)
                     break
-        #else:
-        #    break
                 
         # display the result
         display(img, cap)
-        #cv2.imshow("img", img)    
-        #if cv2.waitKey(1) == ord("q"):
-        #    break
-    #print(data)
-    #cap.release()
-    #cv2.destroyAllWindows()
+        
+# luhn algo
+def luhn_algo(cno, cap):
+    c = str(cno)
+    bits = list(map(int, c))           # a list to store every bit of the card number as individual elements
+    odd_sum = 0
+    even_sum = 0
+    total = 0           # sum of odd and even bits
+    
+    for i in range(0, len(bits)):
+        if i == 0 or i % 2 == 0:
+            even = bits[i] * 2
+            if even > 9:
+                even1 = even % 10
+                even2 = math.trunc(even / 10) 
+                add = even2 + even1
+                even_sum += add
+            else:
+                even_sum += even 
+        else:
+            odd_sum += bits[i]    
+
+    total = odd_sum + even_sum
+
+# validation and calulation of the checksum     
+    pre_check = total % 10
+    if pre_check == 0:
+        luhn_bit = 0
+    else:
+        luhn_bit = 10 - pre_check
+#    print("luhn_bit = ", luhn_bit) 
+    
+    if (pre_check + luhn_bit) != 10:
+        print("something went wrong, check your QR code and try again")
+        exit()
+    else:
+        l = str(luhn_bit)
+        n = cno
+        
+        c_num = n + l
+        #print("complete number =", c_num) 
+        collect(c_num, cap)
+
+    
+def face_det(cap, fname, c_no):
+    
+    say(l8)
+    say(l5)
+    
+    detector = dlib.get_frontal_face_detector()
+  
+    # Capture frames continuously
+    while cap.isOpened():
+      
+        # Capture frame-by-frame
+        _, frame = cap.read()
+        #frame = cv2.flip(frame, 1)
+      
+        # RGB to grayscale
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        faces = detector(gray)
+      
+        # Iterator to count faces
+        i = 0
+        for face in faces:
+      
+            # Get the coordinates of faces
+            x, y = face.left(), face.top()
+            x1, y1 = face.right(), face.bottom()
+            cv2.rectangle(frame, (x, y), (x1, y1), (0, 255, 0), 2)
+      
+            # Increment iterator for each face in faces
+            i = i+1
+      
+            # Display the box and faces
+            #print(face, i)
+            if i > 1:
+                print("More than one face detected")
+                say(l9)
+                terminate(cap)
+            else:
+                face_rec(cap, fname, c_no)
+      
+        # Display the resulting frame
+        display(frame, cap)
+        
+def face_rec(cap, fname, c_no):
+    
+    faces_encodings = []
+    faces_names = []
+    
+    cur_direc = os.getcwd()
+    path = os.path.join(cur_direc, 'faces\\')
+    
+    list_of_files = [f for f in glob.glob(path+'*.jpg')]
+    number_files = len(list_of_files)
+    names = list_of_files.copy()
+    
+    for i in range(number_files):
+        globals()['image_{}'.format(i)] = face_recognition.load_image_file(list_of_files[i])
+        globals()['image_encoding_{}'.format(i)] = face_recognition.face_encodings(globals()['image_{}'.format(i)])[0]
+        faces_encodings.append(globals()['image_encoding_{}'.format(i)])
+    # Create array of known names
+        names[i] = names[i].replace(cur_direc, "")  
+        faces_names.append(names[i])
+        
+    # main block starts here
+        
+    face_locations = []
+    face_encodings = []
+    face_names = []
+    process_this_frame = True
+    
+    video_capture = cap
+    
+    while cap.isOpened():
+        _, frame = video_capture.read()
+        small_frame = cv2.resize(frame, (0, 0), fx=0.25, fy=0.25)
+        rgb_small_frame = small_frame[:, :, ::-1]
+        
+        if process_this_frame:
+            face_locations = face_recognition.face_locations(rgb_small_frame)
+            face_encodings = face_recognition.face_encodings(rgb_small_frame, face_locations)
+            face_names = []
+            
+            for face_encoding in face_encodings:
+                matches = face_recognition.compare_faces(faces_encodings, face_encoding)
+                name = "Unknown"
+                face_distances = face_recognition.face_distance(faces_encodings, face_encoding)
+                best_match_index = np.argmin(face_distances)
+                
+                if matches[best_match_index]:
+                    name = faces_names[best_match_index]
+                    
+                face_names.append(name)
+                
+        process_this_frame = not process_this_frame
+                    
+    # Display the results
+        for (top, right, bottom, left), name in zip(face_locations, face_names):
+            top *= 4
+            right *= 4
+            bottom *= 4
+            left *= 4
+            
+        # Draw a rectangle around the face
+            cv2.rectangle(frame, (left, top), (right, bottom), (0, 255, 0), 2)
+            name = name.replace('.jpg', '')
+            name = name[7:]
+            
+            if name == fname:
+                l = "Face verified"
+                #say(l)
+                print(l)
+                go(cap)
+                # Input text label with a name below the face
+                #cv2.rectangle(frame, (left, bottom - 35), (right, bottom), (0, 255, 0), cv2.FILLED)
+                font = cv2.FONT_HERSHEY_DUPLEX
+                cv2.putText(frame, name, (left + 6, bottom - 6), font, 1.0, (255, 255, 255), 1)
+                break
+            else:
+                l = "Face change noticed. Aborting transaction"
+                say(l)
+                terminate(cap)
+            
+        display(frame, cap)
+        break
+        
 
 def load_pretrained_model():
     model = load_model('eye_status_classifier0.h5')
@@ -306,7 +499,7 @@ def go(cap):
     
     #print("Spoof detector initialized")
     say(l4)
-    say(l5)
+    #say(l5)
     
     (model, face_detector, open_eyes_detector, left_eye_detector, right_eye_detector, images) = init()
     
@@ -314,30 +507,21 @@ def go(cap):
     data = np.load('encodings.npy',allow_pickle='TRUE').item()
     #print(known_names)
     
-    #video_capture = cv2.VideoCapture(0, cv2.CAP_DSHOW)
     video_capture = cap
-    #VideoStream(src=0).start()
     
     eyes_detected = defaultdict(str)
     while cap.isOpened():
       frame = detect_and_display(model, video_capture, face_detector, open_eyes_detector,left_eye_detector,right_eye_detector, data, eyes_detected)
       
       display(frame, cap)
-      #cv2.imshow("Eye-Blink based Liveness Detection for Facial Recognition", frame)
-      #if cv2.waitKey(1) & 0xFF == ord('q'):
-      #    break
-    #cv2.destroyAllWindows()
-    #video_capture.release()
-    #stop()
     
 def display(img, cap):
     cv2.imshow("cam modules", img)
     if cv2.waitKey(1) & 0xFF == ord('q'):
-        cv2.destroyAllWindows()
-        cap.release()
+        terminate(cap)
         
 def terminate(cap):
     cv2.destroyAllWindows()
     cap.release()
-        
+     
 init_cam()
