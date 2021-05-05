@@ -10,6 +10,11 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from ops_screen import Ui_ops_Scrn
 
 class Ui_bnkScrn(object):
+    def __init__(self, c_no, mydb):
+        self.mydb = mydb
+        self.c_no = c_no
+        print("printed from bnk_options -", c_no)
+        
     def setupUi(self, bnkScrn):
         bnkScrn.setObjectName("bnkScrn")
         bnkScrn.resize(960, 640)
@@ -70,12 +75,13 @@ class Ui_bnkScrn(object):
 
         self.savBtn.clicked.connect(self.ops_screenWindow)
         self.curBtn.clicked.connect(self.ops_screenWindow)
+
         self.retranslateUi(bnkScrn)
-        QtCore.QMetaObject.connectSlotsByName(bnkScrn)
+        QtCore.QMetaObject.connectSlotsByName(bnkScrn) 
         
     def ops_screenWindow(self):
         ops_Scrn = QtWidgets.QDialog()
-        ops_Scrn.ui = Ui_ops_Scrn()
+        ops_Scrn.ui = Ui_ops_Scrn(self.c_no, self.mydb)
         ops_Scrn.ui.setupUi(ops_Scrn)
         ops_Scrn.show()
         ops_Scrn.exec_()
@@ -93,13 +99,3 @@ class Ui_bnkScrn(object):
         self.savBtn.setText(_translate("bnkScrn", "Savings Account"))
         self.curBtn.setText(_translate("bnkScrn", "Current Account"))
 
-#"""
-if __name__ == "__main__":
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
-    bnkScrn = QtWidgets.QDialog()
-    ui = Ui_bnkScrn()
-    ui.setupUi(bnkScrn)
-    bnkScrn.show()
-    sys.exit(app.exec_())
-#"""
