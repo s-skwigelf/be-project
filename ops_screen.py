@@ -7,8 +7,15 @@
 # WARNING! All changes made in this file will be lost!
 
 from PyQt5 import QtCore, QtGui, QtWidgets
+from wd_scrn import Ui_wdScrn
+from bal_scrn import Ui_balScrn
 
 class Ui_ops_Scrn(object):
+    def __init__(self, c_no, mydb):
+        self.mydb = mydb
+        self.c_no = c_no
+        print("printed from ops_Scrn -", c_no)
+        
     def setupUi(self, ops_Scrn):
         ops_Scrn.setObjectName("ops_Scrn")
         ops_Scrn.resize(960, 640)
@@ -37,44 +44,7 @@ class Ui_ops_Scrn(object):
         self.verticalLayout_2.setSizeConstraint(QtWidgets.QLayout.SetNoConstraint)
         self.verticalLayout_2.setContentsMargins(0, 0, 0, 0)
         self.verticalLayout_2.setObjectName("verticalLayout_2")
-        self.msBtn = QtWidgets.QPushButton(self.verticalWidget_2)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.msBtn.sizePolicy().hasHeightForWidth())
-        self.msBtn.setSizePolicy(sizePolicy)
-        font = QtGui.QFont()
-        font.setPointSize(10)
-        self.msBtn.setFont(font)
-        self.msBtn.setAutoFillBackground(False)
-        self.msBtn.setStyleSheet("background-color: rgb(255, 255, 255);\n"
-"border-color: rgb(166, 166, 166);\n"
-"selection-color: rgb(170, 255, 255);")
-        self.msBtn.setObjectName("msBtn")
-        self.verticalLayout_2.addWidget(self.msBtn)
-        self.wdBtn_2 = QtWidgets.QPushButton(self.verticalWidget_2)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.wdBtn_2.sizePolicy().hasHeightForWidth())
-        self.wdBtn_2.setSizePolicy(sizePolicy)
-        font = QtGui.QFont()
-        font.setPointSize(10)
-        self.wdBtn_2.setFont(font)
-        self.wdBtn_2.setStyleSheet("background-color: rgb(255, 255, 255);\n"
-"border-color: rgb(166, 166, 166);\n"
-"selection-color: rgb(170, 255, 255);")
-        self.wdBtn_2.setObjectName("wdBtn_2")
-        self.verticalLayout_2.addWidget(self.wdBtn_2)
-        self.verticalWidget = QtWidgets.QWidget(ops_Scrn)
-        self.verticalWidget.setGeometry(QtCore.QRect(30, 250, 431, 241))
-        self.verticalWidget.setAutoFillBackground(False)
-        self.verticalWidget.setObjectName("verticalWidget")
-        self.verticalLayout = QtWidgets.QVBoxLayout(self.verticalWidget)
-        self.verticalLayout.setSizeConstraint(QtWidgets.QLayout.SetNoConstraint)
-        self.verticalLayout.setContentsMargins(0, 0, 0, 0)
-        self.verticalLayout.setObjectName("verticalLayout")
-        self.wdBtn = QtWidgets.QPushButton(self.verticalWidget)
+        self.wdBtn = QtWidgets.QPushButton(self.verticalWidget_2)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -83,12 +53,13 @@ class Ui_ops_Scrn(object):
         font = QtGui.QFont()
         font.setPointSize(10)
         self.wdBtn.setFont(font)
+        self.wdBtn.setAutoFillBackground(False)
         self.wdBtn.setStyleSheet("background-color: rgb(255, 255, 255);\n"
 "border-color: rgb(166, 166, 166);\n"
 "selection-color: rgb(170, 255, 255);")
         self.wdBtn.setObjectName("wdBtn")
-        self.verticalLayout.addWidget(self.wdBtn)
-        self.beBtn = QtWidgets.QPushButton(self.verticalWidget)
+        self.verticalLayout_2.addWidget(self.wdBtn)
+        self.beBtn = QtWidgets.QPushButton(self.verticalWidget_2)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -97,15 +68,41 @@ class Ui_ops_Scrn(object):
         font = QtGui.QFont()
         font.setPointSize(10)
         self.beBtn.setFont(font)
-        self.beBtn.setAutoFillBackground(False)
         self.beBtn.setStyleSheet("background-color: rgb(255, 255, 255);\n"
 "border-color: rgb(166, 166, 166);\n"
 "selection-color: rgb(170, 255, 255);")
         self.beBtn.setObjectName("beBtn")
-        self.verticalLayout.addWidget(self.beBtn)
+        self.verticalLayout_2.addWidget(self.beBtn)
+        
+        self.wdBtn.clicked.connect(self.goto_wdScrn)
+        self.beBtn.clicked.connect(self.goto_balScrn)
 
         self.retranslateUi(ops_Scrn)
         QtCore.QMetaObject.connectSlotsByName(ops_Scrn)
+        
+    def goto_wdScrn(self):
+        wdScrn = QtWidgets.QDialog()
+        wdScrn.ui = Ui_wdScrn(self.c_no, self.mydb)
+        wdScrn.ui.setupUi(wdScrn)
+        wdScrn.show()
+        wdScrn.exec_()
+        
+    def goto_balScrn(self):
+        
+        curs = self.mydb.cursor()
+        
+        bal_sql = f"SELECT bal FROM custs WHERE card_no = {self.c_no}"
+        curs.execute(bal_sql)
+        res = curs.fetchone()
+        init_bal = res[0]
+        
+        self.mydb.close()
+        
+        balScrn = QtWidgets.QDialog()
+        balScrn.ui = Ui_balScrn(init_bal)
+        balScrn.ui.setupUi(balScrn)
+        balScrn.show()
+        balScrn.exec_()
 
     def retranslateUi(self, ops_Scrn):
         _translate = QtCore.QCoreApplication.translate
@@ -117,18 +114,6 @@ class Ui_ops_Scrn(object):
 "<p align=\"center\" style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><br /></p>\n"
 "<p align=\"center\" style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><br /></p>\n"
 "<p align=\"center\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:14pt; color:#000000;\">ENHANCED ATM - For Cardless and Secure Transactions</span></p></body></html>"))
-        self.msBtn.setText(_translate("ops_Scrn", "Mini statement"))
-        self.wdBtn_2.setText(_translate("ops_Scrn", "Another function"))
         self.wdBtn.setText(_translate("ops_Scrn", "Withdraw"))
         self.beBtn.setText(_translate("ops_Scrn", "Balance enquiry"))
 
-"""
-if __name__ == "__main__":
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
-    ops_Scrn = QtWidgets.QDialog()
-    ui = Ui_ops_Scrn()
-    ui.setupUi(ops_Scrn)
-    ops_Scrn.show()
-    sys.exit(app.exec_())
-"""
