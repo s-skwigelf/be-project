@@ -6,6 +6,7 @@
 #
 # WARNING! All changes made in this file will be lost!
 
+
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import pyqtSlot
 from bnk_options import Ui_bnkScrn
@@ -69,14 +70,12 @@ class Ui_MainWindow(object):
         
         self.retranslateUi(MainWindow)
         self.startBtn.clicked.connect(self.tp)
-        #self.startBtn.clicked.connect(self.scan_read)
         QtCore.QMetaObject.connectSlotsByName(MainWindow) 
     
     
     def tp(self):
         
         self.init_cam()
-        #self.bnk_opsWindow()
     
         
     def say(self, line):
@@ -231,7 +230,8 @@ class Ui_MainWindow(object):
         self.say(l8)
         self.say(l5)
         
-        detector = dlib.get_frontal_face_detector()
+        #detector = dlib.get_frontal_face_detector()
+        face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
       
         # Capture frames continuously
         while cap.isOpened():
@@ -242,11 +242,15 @@ class Ui_MainWindow(object):
           
             # RGB to grayscale
             gray = cv2.cvtColor(self.frame, cv2.COLOR_BGR2GRAY)
-            faces = detector(gray)
+            #faces = detector(gray)
+            faces = face_cascade.detectMultiScale(gray, 1.1, 4)
           
             # Iterator to count faces
             i = 0
-            for face in faces:
+            for (x, y, w, h) in faces:
+                cv2.rectangle(self.frame, (x, y), (x+w, y+h), (255, 0, 0), 2)
+                i = i+1
+            """for face in faces:
           
                 # Get the coordinates of faces
                 x, y = face.left(), face.top()
@@ -254,8 +258,9 @@ class Ui_MainWindow(object):
                 cv2.rectangle(self.frame, (x, y), (x1, y1), (0, 255, 0), 2)
           
                 # Increment iterator for each face in faces
-                i = i+1
+                i = i+1"""
           
+            cv2.waitKey(5000)
             if i > 1:
                 print("More than one face detected")
                 self.say(l9)
@@ -588,19 +593,12 @@ class Ui_MainWindow(object):
     
     #@pyqtSlot()
     def bnk_opsWindow(self):
-        
         bnkScrn = QtWidgets.QDialog()
-        bnkScrn.ui = Ui_bnkScrn(c_nmber, mydb)
-        bnkScrn.ui.setupUi(bnkScrn)
+        ui = Ui_bnkScrn(c_nmber, mydb)
+        ui.setupUi(bnkScrn)
         bnkScrn.show()
-        bnkScrn.exec_()
-        
-    def DbConnect(self):
-        try:
-            db = mdb.connect('localhost', 'root', '', 'atm')
-            self.welcomeText.setText("DB connection successful")
-        except mdb.Error as e:
-            self.welcomeText.setText("DB connection failed")
+        QtCore.QTimer.singleShot(10000, bnkScrn.close)
+        bnkScrn.exec_() 
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
