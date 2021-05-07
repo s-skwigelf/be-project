@@ -33,19 +33,15 @@ class Ui_endScrn(object):
         self.textBrowser = QtWidgets.QTextBrowser(endScrn)
         self.textBrowser.setGeometry(QtCore.QRect(160, 340, 631, 51))
         self.textBrowser.setFrameShape(QtWidgets.QFrame.NoFrame)
-        self.textBrowser.setObjectName("textBrowser")
-        
-        #time.sleep(5)
-        
-        #self.close_win()
+        self.textBrowser.setObjectName("textBrowser") 
 
         self.retranslateUi(endScrn)
         QtCore.QMetaObject.connectSlotsByName(endScrn)
         
-    def close_win(self):
-        #import sys
-        #sys.exit(app.exec_())
-        pass
+        #QtCore.QTimer.singleShot(5000, self.win_close)
+        
+    def win_close(self):
+        self.close()
 
     def retranslateUi(self, endScrn):
         _translate = QtCore.QCoreApplication.translate
@@ -63,13 +59,3 @@ class Ui_endScrn(object):
 "</style></head><body style=\" font-family:\'MS Shell Dlg 2\'; font-size:7.8pt; font-weight:400; font-style:normal;\">\n"
 "<p align=\"center\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:14pt; font-weight:600;\">Thank You for using this machine!</span></p></body></html>"))
 
-"""
-if __name__ == "__main__":
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
-    endScrn = QtWidgets.QDialog()
-    ui = Ui_endScrn()
-    ui.setupUi(endScrn)
-    endScrn.show()
-    sys.exit(app.exec_())
-#"""
