@@ -13,7 +13,7 @@ class Ui_bnkScrn(object):
     def __init__(self, c_no, mydb):
         self.mydb = mydb
         self.c_no = c_no
-        print("printed from bnk_options -", c_no)
+        #print("printed from bnk_options -", c_no)
         
     def setupUi(self, bnkScrn):
         bnkScrn.setObjectName("bnkScrn")
@@ -84,8 +84,9 @@ class Ui_bnkScrn(object):
         ops_Scrn.ui = Ui_ops_Scrn(self.c_no, self.mydb)
         ops_Scrn.ui.setupUi(ops_Scrn)
         ops_Scrn.show()
-        ops_Scrn.exec_()
-
+        QtCore.QTimer.singleShot(10000, ops_Scrn.close)
+        ops_Scrn.exec_() 
+        
     def retranslateUi(self, bnkScrn):
         _translate = QtCore.QCoreApplication.translate
         bnkScrn.setWindowTitle(_translate("bnkScrn", "Dialog"))
@@ -98,4 +99,3 @@ class Ui_bnkScrn(object):
 "<p align=\"center\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:14pt; color:#000000;\">ENHANCED ATM - For Cardless and Secure Transactions</span></p></body></html>"))
         self.savBtn.setText(_translate("bnkScrn", "Savings Account"))
         self.curBtn.setText(_translate("bnkScrn", "Current Account"))
-
