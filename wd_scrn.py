@@ -102,6 +102,7 @@ class Ui_wdScrn(object):
         endScrn.ui = Ui_endScrn()
         endScrn.ui.setupUi(endScrn)
         endScrn.show()
+        QtCore.QTimer.singleShot(7000, endScrn.close)
         endScrn.exec_()
 
     def retranslateUi(self, wdScrn):
@@ -121,13 +122,3 @@ class Ui_wdScrn(object):
 "<p align=\"center\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:14pt; font-weight:600;\">Please enter the withdrawal amount</span></p></body></html>"))
         self.okBtn.setText(_translate("wdScrn", "OK"))
 
-"""
-if __name__ == "__main__":
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
-    wdScrn = QtWidgets.QDialog()
-    ui = Ui_wdScrn()
-    ui.setupUi(wdScrn)
-    wdScrn.show()
-    sys.exit(app.exec_())
-"""
