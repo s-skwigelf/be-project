@@ -14,7 +14,7 @@ class Ui_ops_Scrn(object):
     def __init__(self, c_no, mydb):
         self.mydb = mydb
         self.c_no = c_no
-        print("printed from ops_Scrn -", c_no)
+        #print("printed from ops_Scrn -", c_no)
         
     def setupUi(self, ops_Scrn):
         ops_Scrn.setObjectName("ops_Scrn")
@@ -85,6 +85,7 @@ class Ui_ops_Scrn(object):
         wdScrn.ui = Ui_wdScrn(self.c_no, self.mydb)
         wdScrn.ui.setupUi(wdScrn)
         wdScrn.show()
+        QtCore.QTimer.singleShot(10000, wdScrn.close)
         wdScrn.exec_()
         
     def goto_balScrn(self):
@@ -102,6 +103,7 @@ class Ui_ops_Scrn(object):
         balScrn.ui = Ui_balScrn(init_bal)
         balScrn.ui.setupUi(balScrn)
         balScrn.show()
+        QtCore.QTimer.singleShot(10000, balScrn.close)
         balScrn.exec_()
 
     def retranslateUi(self, ops_Scrn):
@@ -116,4 +118,3 @@ class Ui_ops_Scrn(object):
 "<p align=\"center\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:14pt; color:#000000;\">ENHANCED ATM - For Cardless and Secure Transactions</span></p></body></html>"))
         self.wdBtn.setText(_translate("ops_Scrn", "Withdraw"))
         self.beBtn.setText(_translate("ops_Scrn", "Balance enquiry"))
-
