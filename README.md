@@ -9,7 +9,7 @@ A neural network will be deployed that will help against face presentation attac
 Said presentation attack detection system will only be trained for print and static display based FPAs.
 
 GUI - PyQt5
-Database - MySQL
+  Database - MySQL
 
 Main files for the project are:
   1. front.py
