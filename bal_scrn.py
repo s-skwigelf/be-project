@@ -70,6 +70,7 @@ class Ui_balScrn(object):
         endScrn.ui = Ui_endScrn()
         endScrn.ui.setupUi(endScrn)
         endScrn.show()
+        QtCore.QTimer.singleShot(7000, endScrn.close)
         endScrn.exec_()
 
     def retranslateUi(self, balScrn):
@@ -88,3 +89,4 @@ class Ui_balScrn(object):
 "</style></head><body style=\" font-family:\'MS Shell Dlg 2\'; font-size:7.8pt; font-weight:400; font-style:normal;\">\n"
 "<p align=\"center\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:14pt; font-weight:600;\">Your available balance is:</span></p></body></html>"))
         self.okBtn.setText(_translate("balScrn", "OK"))
+
