@@ -230,8 +230,7 @@ class Ui_MainWindow(object):
         self.say(l8)
         self.say(l5)
         
-        #detector = dlib.get_frontal_face_detector()
-        face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
+        detector = dlib.get_frontal_face_detector()
       
         # Capture frames continuously
         while cap.isOpened():
@@ -242,15 +241,11 @@ class Ui_MainWindow(object):
           
             # RGB to grayscale
             gray = cv2.cvtColor(self.frame, cv2.COLOR_BGR2GRAY)
-            #faces = detector(gray)
-            faces = face_cascade.detectMultiScale(gray, 1.1, 4)
+            faces = detector(gray)
           
             # Iterator to count faces
             i = 0
-            for (x, y, w, h) in faces:
-                cv2.rectangle(self.frame, (x, y), (x+w, y+h), (255, 0, 0), 2)
-                i = i+1
-            """for face in faces:
+            for face in faces:
           
                 # Get the coordinates of faces
                 x, y = face.left(), face.top()
@@ -258,17 +253,17 @@ class Ui_MainWindow(object):
                 cv2.rectangle(self.frame, (x, y), (x1, y1), (0, 255, 0), 2)
           
                 # Increment iterator for each face in faces
-                i = i+1"""
+                i = i+1
           
-            cv2.waitKey(5000)
+            #cv2.waitKey(5000)
             if i > 1:
-                print("More than one face detected")
+                #print("More than one face detected")
                 self.say(l9)
                 self.terminate(cap)
                 self.blkAcc(mydb, c_no)
             else:
-                #cv2.waitKey(10000)
                 self.face_rec(cap, fname, c_no)
+                #print("1 face only")
           
             # Display the resulting frame
             self.display(self.frame, cap)
@@ -597,7 +592,7 @@ class Ui_MainWindow(object):
         ui = Ui_bnkScrn(c_nmber, mydb)
         ui.setupUi(bnkScrn)
         bnkScrn.show()
-        QtCore.QTimer.singleShot(10000, bnkScrn.close)
+        QtCore.QTimer.singleShot(9000, bnkScrn.close)
         bnkScrn.exec_() 
 
     def retranslateUi(self, MainWindow):
