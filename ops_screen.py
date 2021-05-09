@@ -118,3 +118,5 @@ class Ui_ops_Scrn(object):
 "<p align=\"center\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:14pt; color:#000000;\">ENHANCED ATM - For Cardless and Secure Transactions</span></p></body></html>"))
         self.wdBtn.setText(_translate("ops_Scrn", "Withdraw"))
         self.beBtn.setText(_translate("ops_Scrn", "Balance enquiry"))
+
+
