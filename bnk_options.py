@@ -9,10 +9,12 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from ops_screen import Ui_ops_Scrn
 
+
 class Ui_bnkScrn(object):
     def __init__(self, c_no, mydb):
         self.mydb = mydb
         self.c_no = c_no
+        #self.bnkScrn = bnkScrn
         #print("printed from bnk_options -", c_no)
         
     def setupUi(self, bnkScrn):
@@ -79,13 +81,19 @@ class Ui_bnkScrn(object):
         self.retranslateUi(bnkScrn)
         QtCore.QMetaObject.connectSlotsByName(bnkScrn) 
         
+        #QtCore.QTimer.singleShot(1000, self.win_close)
+        
+        #self.savBtn.clicked.connect(self.win_close)
+        #self.curBtn.clicked.connect(self.win_close)
+        
     def ops_screenWindow(self):
         ops_Scrn = QtWidgets.QDialog()
         ops_Scrn.ui = Ui_ops_Scrn(self.c_no, self.mydb)
         ops_Scrn.ui.setupUi(ops_Scrn)
         ops_Scrn.show()
-        QtCore.QTimer.singleShot(10000, ops_Scrn.close)
+        QtCore.QTimer.singleShot(9000, ops_Scrn.close)
         ops_Scrn.exec_() 
+        
         
     def retranslateUi(self, bnkScrn):
         _translate = QtCore.QCoreApplication.translate
@@ -99,3 +107,5 @@ class Ui_bnkScrn(object):
 "<p align=\"center\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:14pt; color:#000000;\">ENHANCED ATM - For Cardless and Secure Transactions</span></p></body></html>"))
         self.savBtn.setText(_translate("bnkScrn", "Savings Account"))
         self.curBtn.setText(_translate("bnkScrn", "Current Account"))
+
+
