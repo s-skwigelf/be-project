@@ -8,7 +8,7 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from end_scrn import Ui_endScrn
-import mysql.connector as msc
+from bal_lim import Ui_wdLim
 
 class Ui_wdScrn(object):
     def __init__(self, c_no, mydb):
@@ -80,6 +80,7 @@ class Ui_wdScrn(object):
         if init_bal < amount:
             print("Withdrawal amount exceeded. Transaction failed.")
             self.close_con()
+            self.balLim_screen()
             
         else:
             wd_sql = f"SELECT bal - {amount} FROM custs WHERE card_no = {self.c_no}"
@@ -92,10 +93,10 @@ class Ui_wdScrn(object):
             self.mydb.commit()
             print(bal)
             self.close_con()
+            self.end_screen()
             
     def close_con(self):
         self.mydb.close()
-        self.end_screen()
         
     def end_screen(self):
         endScrn = QtWidgets.QDialog()
@@ -104,6 +105,14 @@ class Ui_wdScrn(object):
         endScrn.show()
         QtCore.QTimer.singleShot(7000, endScrn.close)
         endScrn.exec_()
+        
+    def balLim_screen(self):
+        wdLim = QtWidgets.QDialog()
+        ui = Ui_wdLim()
+        ui.setupUi(wdLim)
+        wdLim.show()
+        QtCore.QTimer.singleShot(7000, wdLim.close)
+        wdLim.exec_()
 
     def retranslateUi(self, wdScrn):
         _translate = QtCore.QCoreApplication.translate
@@ -121,4 +130,5 @@ class Ui_wdScrn(object):
 "</style></head><body style=\" font-family:\'MS Shell Dlg 2\'; font-size:7.8pt; font-weight:400; font-style:normal;\">\n"
 "<p align=\"center\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:14pt; font-weight:600;\">Please enter the withdrawal amount</span></p></body></html>"))
         self.okBtn.setText(_translate("wdScrn", "OK"))
+
 
