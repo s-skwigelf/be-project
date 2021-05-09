@@ -7,7 +7,6 @@
 # WARNING! All changes made in this file will be lost!
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-import time
 
 class Ui_endScrn(object):
     def setupUi(self, endScrn):
@@ -36,12 +35,8 @@ class Ui_endScrn(object):
         self.textBrowser.setObjectName("textBrowser") 
 
         self.retranslateUi(endScrn)
-        QtCore.QMetaObject.connectSlotsByName(endScrn)
+        QtCore.QMetaObject.connectSlotsByName(endScrn) 
         
-        #QtCore.QTimer.singleShot(5000, self.win_close)
-        
-    def win_close(self):
-        self.close()
 
     def retranslateUi(self, endScrn):
         _translate = QtCore.QCoreApplication.translate
@@ -58,4 +53,5 @@ class Ui_endScrn(object):
 "p, li { white-space: pre-wrap; }\n"
 "</style></head><body style=\" font-family:\'MS Shell Dlg 2\'; font-size:7.8pt; font-weight:400; font-style:normal;\">\n"
 "<p align=\"center\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:14pt; font-weight:600;\">Thank You for using this machine!</span></p></body></html>"))
+
 
