@@ -8,8 +8,8 @@ A facial recognition system will be responsible to complete the authentication p
 A neural network will be deployed that will help against face presentation attacks.
 Said presentation attack detection system will only be trained for print and static display based FPAs.
 
-GUI - PyQt5
-  Database - MySQL
+GUI - PyQt5;
+Database - MySQL.
 
 Main files for the project are:
   1. front.py
